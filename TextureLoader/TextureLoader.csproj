@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net470</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    
+    <GamePath>D:\Games\Oculus\Software\another-axiom-gorilla-tag\</GamePath>
+    <ManagedAssembliesPath>$(GamePath)/Gorilla Tag_Data\Managed</ManagedAssembliesPath>
+  </PropertyGroup>
+
+  <!-- Output -->
+  <Target AfterTargets="Build" Name="Output">
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(GamePath)/BepInEx/plugins/GorillaTextureLoader/GorillaTextureLoader.dll" />
+    <MakeDir Directories="$(GamePath)/BepInEx/plugins/GorillaTextureLoader/TexturePacks" />
+  </Target>
+
+  <!-- Dependencies -->
+  <ItemGroup>
+    <Reference Include="$(GamePath)/**" Exclude="0Harmony20.dll" />
+  </ItemGroup>  
+</Project>
