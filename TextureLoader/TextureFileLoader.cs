@@ -1,6 +1,4 @@
-﻿// TODO: Check that zipArchive.GetEntry() returns null if the entry doesnt exists
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -27,14 +25,15 @@ namespace TextureLoader
             }
         }
 
-        private static TexturePack? LoadFromFile(string path)
+        private static TexturePack LoadFromFile(string path)
         {
             Main.LogSource.LogInfo("Loading file " + Path.GetFileName(path));
 
             using Stream reader = File.OpenRead(path);
             using ZipArchive zipArchive = new ZipArchive(reader);
 
-            if (zipArchive.GetEntry("packinfo.json") is not ZipArchiveEntry packInfoEntry)
+            ZipArchiveEntry packInfoEntry = zipArchive.GetEntry("packinfo.json") ?? null;
+            if (packInfoEntry is null)
             {
                 Main.LogSource.LogError($"{path} does not contain a packinfo file.");
                 return null;
@@ -51,10 +50,12 @@ namespace TextureLoader
             {
                 var dictEntry = packInfo.SupportedMaps.ElementAt(mapFolderIndex);
                 string mapName = dictEntry.Key;
-                string[] mapTextureFiles = dictEntry.Value;
+                string[] mapTextureFiles = dictEntry.Value.Select(path => path.Insert(0, $"{mapName}/")).ToArray(); // adds the folder to the file
+                Main.LogVerbose($"{Path.GetFileName(path)} enumerating through supported maps {mapFolderIndex}/{packInfo.SupportedMaps.Count}", mapName, mapTextureFiles.Length.ToString());
 
                 foreach (var mapTextureFile in mapTextureFiles)
                 {
+                    Main.LogVerbose(mapTextureFile);
                     if (!zipArchive.Entries.Any(entry => entry.FullName == mapTextureFile))
                     {
                         Main.LogSource.LogWarning("Failed to find texture file " + mapTextureFile + " in " + path);
@@ -66,6 +67,7 @@ namespace TextureLoader
 
                     Texture2D mapTexture = new Texture2D(0, 0);
                     mapTexture.LoadImage(mapBuffer);
+                    mapTexture.name = Path.GetFileNameWithoutExtension(mapTextureFile);
                     if (mapTextures.TryGetValue(mapName, out List<Texture> textures)) textures.Add(mapTexture);
                     else mapTextures.Add(mapName, new() { mapTexture });
                     Main.LogSource.LogInfo($"Loaded {mapTextureFile} for {mapName}");

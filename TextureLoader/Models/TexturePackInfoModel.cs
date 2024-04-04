@@ -18,6 +18,6 @@ namespace TextureLoader.Models
         public string Author;
         public string Description;
 
-        public Dictionary<string, string[]> SupportedMaps; // map name, map textures files
+        public Dictionary<string, string[]> SupportedMaps; // map name, map textures file names (texture.png not /path/to/.png) 
     }
 }

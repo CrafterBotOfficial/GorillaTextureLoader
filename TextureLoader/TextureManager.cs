@@ -5,9 +5,20 @@ namespace TextureLoader
 {
     public static class TextureManager
     {
-        public static Dictionary<string, IMapTextureManager> MapManagers = new Dictionary<string, IMapTextureManager>()
+        public static readonly Dictionary<string, IMapTextureManager> MapManagers;
+
+        static TextureManager()
         {
-            { "forest", new ForestTextureManager() }
-        };
+            MapManagers = new Dictionary<string, IMapTextureManager>()
+            {
+                { "forest", new ForestTextureManager() },
+            };
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+        }
+
+        private static void SceneManager_sceneLoaded(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.LoadSceneMode arg1)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
